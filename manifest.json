@@ -13,5 +13,12 @@
     ],
     "background": {
         "service_worker": "service-worker.js"
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://ccfolia.com/rooms/*"],
+            "js": ["content-script.js"],
+            "all_frames": true
+        }
+    ]
 }
