@@ -1,0 +1,17 @@
+{
+    "manifest_version":3,
+    "name":"ココフォリア通知",
+    "version": "0.1",
+    "description": "ココフォリアの更新をバックグラウンドで通知します。",
+    "permissions": [
+        "offscreen",
+        "notifications",
+        "cookies"
+    ],
+    "host_permissions": [
+        "https://ccfolia.com/"
+    ],
+    "background": {
+        "service_worker": "service-worker.js"
+    }
+}
