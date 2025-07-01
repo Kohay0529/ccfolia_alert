@@ -14,16 +14,22 @@ async function createOffscreenDocument() {
     console.log('Offscreen document created.');
 }
 
-chrome.runtime.onStartup.addListener(createOffscreenDocument);
-self.oninstall = () => {
+// 拡張機能がインストールされたり更新されたりした時に実行
+chrome.runtime.onInstalled.addListener(() => {
     createOffscreenDocument();
-};
+});
 
-chrome.runtime,onmessage.addListener((message) => {
-    if (message.tye === 'kokofolia_update') {
+// ブラウザが起動したときに実行
+chrome.runtime.onStartup.addListener(() => {
+    createOffscreenDocument();
+});
+
+// offscreen.jsからのメッセージを受け取る
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'kokofolia_update') {
         console.log('ココフォリアに更新がありました！');
-        //通知を出す
-        chrome.notifications.creaate({
+        // デスクトップ通知を出す
+        chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icon.png',
             title: 'ココフォリア通知',
