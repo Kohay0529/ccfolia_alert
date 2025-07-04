@@ -75,3 +75,8 @@ chrome.runtime.onMessage.addListener((message) => {
         });
     }
 });
+
+//アイコンが左クリックされたときに設定ページを開く
+chrome.action.onClicked.addListener((tab) => {
+    chrome.runtime.openOptionsPage();
+});
