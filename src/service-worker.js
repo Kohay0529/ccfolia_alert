@@ -69,7 +69,7 @@ chrome.runtime.onMessage.addListener((message) => {
         }
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icon.png',
+            iconUrl: 'icons/icon_notify.png',
             title: message.name || 'ココフォリア通知',
             message: message.message || '新しい書き込みがありました。'
         });
