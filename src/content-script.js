@@ -1,6 +1,7 @@
 
-
-console.log('コンテントスクリプトがココフォリアのページに挿入されました。');
+if (IS_DEBUG_MODE === true) {
+    console.log('コンテントスクリプトがココフォリアのページに挿入されました。');
+}
 
 // 監視セットアップ処理を関数にまとめる
 const setupObserver = () => {
@@ -19,11 +20,16 @@ const setupObserver = () => {
         return false;
     }
 
-    console.log('コンテントスクリプトがチャットログのコンテナを発見。監視を開始します。');
+    if (IS_DEBUG_MODE === true) {
+        console.log('コンテントスクリプトがチャットログのコンテナを発見。監視を開始します。');
+    }
 
     const callback = (mutationsList, observer) => {
         // 変更を検知したら、とりあえず一度だけ通知を送るようにする
-        console.log('チャットの更新を検知しました！');
+        if (IS_DEBUG_MODE === true) {
+            console.log('チャットの更新を検知しました！');
+        }
+            
         chrome.runtime.sendMessage({ type: 'kokofolia_update' });
 
         // 大量の変更が一度に発生する場合があるため、一度検知したら監視を一度停止し、再設定する
@@ -31,7 +37,9 @@ const setupObserver = () => {
         // 1秒後に再度監視を開始する
         setTimeout(() => {
             if (setupObserver()) {
-                console.log('監視を再開しました。');
+                if (IS_DEBUG_MODE === true) {
+                    console.log('監視を再開しました。');
+                }
             }
         }, 1000);
     };

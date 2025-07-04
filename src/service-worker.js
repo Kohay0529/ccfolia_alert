@@ -1,4 +1,5 @@
 // service-worker.js
+importScripts('config.js');
 
 try {
     console.log("Service Worker: chrome.storageのテストを開始します。");
@@ -39,9 +40,12 @@ async function setupOffscreenDocument() {
             justification: 'ココフォリアのDOMを監視するため',
         });
     } else {
-        console.log('監視対象のURLが設定されていないため、Offscreen Documentは作成しません。');
-    }
+        if (IS_DEBUG_MODE === true){
+            console.log('監視対象のURLが設定されていないため、Offscreen Documentは作成しません。');
     
+        }
+    
+    }
     creating = false; // ロックを解除
 }
 
@@ -54,13 +58,15 @@ chrome.runtime.onStartup.addListener(setupOffscreenDocument);
 // すべてのメッセージをここで一括して処理する
 chrome.runtime.onMessage.addListener((message) => {
     // ポップアップからURL更新のメッセージを受け取った場合
-    if (message.type === 'url_updated') {
+    if (message.type === 'url_updated' ) {
         console.log('URLの更新を検知。Offscreen Documentを再作成します。');
         setupOffscreenDocument();
     }
     // コンテントスクリプトからチャット更新のメッセージを受け取った場合
     else if (message.type === 'kokofolia_update') {
-        console.log('チャット更新のメッセージを受信。通知を作成します。');
+        if(IS_DEBUG_MODE === true) {
+            console.log('チャット更新のメッセージを受信。通知を作成します。');
+        }
         chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icon.png',
