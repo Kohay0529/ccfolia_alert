@@ -26,3 +26,8 @@ saveButton.addEventListener('click', () => {
         statusDiv.textContent = '有効なココフォリアの部屋URLを入力してください。';
     }
 });
+
+//アイコンが左クリックされたときに設定ページを開く
+chrome.action.onClicked.addListener((tab) => {
+    chrome.runtime.openOptionsPage();
+});
