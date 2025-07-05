@@ -1,6 +1,7 @@
 // service-worker.js
 importScripts('config.js');
 
+
 try {
     console.log("Service Worker: chrome.storageのテストを開始します。");
     if (chrome.storage && chrome.storage.local) {
@@ -23,29 +24,42 @@ async function setupOffscreenDocument() {
     creating = true;
 
     // 既にドキュメントが存在する場合は、一度閉じる
+
     if (await chrome.offscreen.hasDocument()) {
         await chrome.offscreen.closeDocument();
+        if (IS_DEBUG_MODE === true) {
+            console.log('Offscreen Documentを再作成します。');
+        }
+    } else {
+        if (IS_DEBUG_MODE === true) {
+            console.log('Offscreen Documentを作成します。');
+        }
     }
     
-    const result = await chrome.storage.local.get(['roomUrl']);
-    const url = result.roomUrl;
-
-    if (url) {
-        // 2. 読み込んだURLをパラメータとしてoffscreen.htmlに渡す
-        const offscreenUrl = chrome.runtime.getURL('offscreen.html') + '?url=' + encodeURIComponent(url);
-
+    //URLをofffscreen.jsへjson形式で渡す
+    const result = await chrome.storage.local.get(['roomUrls']);
+    const urls = result.roomUrls || [];
+    if (urls.length > 0){
+        console.log(`${urls.length}件のルームを監視します。`);
+    
+        const params = new URLSearchParams();
+        params.set('urls', JSON.stringify(urls));
+        const offscreenUrl = chrome.runtime.getURL('offscreen.html') + '?' + params.toString();
+        
+        //Offscreen Documentを生成
         await chrome.offscreen.createDocument({
             url: offscreenUrl,
             reasons: ['IFRAME_SCRIPTING'],
-            justification: 'ココフォリアのDOMを監視するため',
+            justification: 'バックアップでルームを監視するため',
         });
     } else {
-        if (IS_DEBUG_MODE === true){
-            console.log('監視対象のURLが設定されていないため、Offscreen Documentは作成しません。');
-    
-        }
-    
+        console.log("監視対象のURLが設定されていません。");
     }
+
+
+    
+
+    
     creating = false; // ロックを解除
 }
 
@@ -58,7 +72,7 @@ chrome.runtime.onStartup.addListener(setupOffscreenDocument);
 // すべてのメッセージをここで一括して処理する
 chrome.runtime.onMessage.addListener((message) => {
     // ポップアップからURL更新のメッセージを受け取った場合
-    if (message.type === 'url_updated' ) {
+    if (message.type === 'url_list_updated' ) {
         console.log('URLの更新を検知。Offscreen Documentを再作成します。');
         setupOffscreenDocument();
     }
@@ -74,4 +88,9 @@ chrome.runtime.onMessage.addListener((message) => {
             message: message.message || '新しい書き込みがありました。'
         });
     }
+});
+
+//アイコンが左クリックされたときに設定ページを開く
+chrome.action.onClicked.addListener((tab) => {
+    chrome.runtime.openOptionsPage();
 });
