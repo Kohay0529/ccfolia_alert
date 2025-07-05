@@ -1,29 +1,64 @@
-const urlInput = document.getElementById('url-input');
-const saveButton = document.getElementById('save-button');
-const statusDiv = document.getElementById('status');
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlInput = document.getElementById('url-input');
+    const addButton = document.getElementById('add-button');
+    const urlList = document.getElementById('url-list');
+    const statusDiv = document.getElementById('status')
 
-// ポップアップが開いたときに、保存済みのURLを読み込んで表示
-document.addEventListener('DOMContentLoaded', () => {
-    chrome.storage.local.get(['roomUrl'], (result) => {
-        if (result.roomUrl) {
-            urlInput.value = result.roomUrl;
-        }
-    });
-});
-
-// 保存ボタンがクリックされたときの処理
-saveButton.addEventListener('click', () => {
-    const url = urlInput.value;
-    // 簡単なURLチェック
-    if (url && url.startsWith('https://ccfolia.com/rooms/')) {
-        // 入力されたURLを'roomUrl'という名前で保存
-        chrome.storage.local.set({ roomUrl: url }, () => {
-            statusDiv.textContent = 'URLを保存しました！';
-            // 変更をバックグラウンドに通知
-            chrome.runtime.sendMessage({ type: 'url_updated' });
+    function displayUrls(urls = []) {
+        urlList.innerHTML = '';
+        urls.forEach((url, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = '<span></span><button>削除</button>';
+            li.querySelector('span').textContent = url;
+            li.querySelector('button').addEventListener('click', () => removeUrl(index));
+            urlList.appendChild(li);
         });
-    } else {
-        statusDiv.textContent = '有効なココフォリアの部屋URLを入力してください。';
+    };
+    
+    //urlを削除する関数
+    async function removeUrl(indexToRemove) {
+        const result = await chrome.storage.local.get(['roomUrls']);
+        let currentUrls = result.roomUrls || [];
+        currentUrls.splice(indexToRemove, 1);
+        await chrome.storage.local.set({ roomUrls: currentUrls });
+        displayUrls(currentUrls);
+        chrome.runtime.sendMessage({ type: 'url_list_updated'});
     }
-});
 
+    //urlを追加する関数
+    async function addUrl() {
+        const newUrl = urlInput.value;
+        if (newUrl && newUrl.startsWith('https://ccfolia.com/rooms/')){
+            const result = await chrome.storage.local.get(['roomUrls']);
+            let currentUrls = result.roomUrls || [];
+            if (!currentUrls.includes(newUrl)) {
+                currentUrls.push(newUrl);
+
+                chrome.storage.local.set({ roomUrls: currentUrls }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(chrome.runtime.lastError.message);
+                        statusDiv.textContent = 'エラー：保存に失敗しました。';
+                    } else {
+                        statusDiv.textContent = 'URLを追加しました！';
+                        displayUrls(currentUrls);
+                        urlInput.value = '';
+                        chrome.runtime.sendMessage({ type: 'url_list_updated' });
+                    }
+
+                    setTimeout(() => { statusDiv.textContent = '' }, 3000)
+                });
+            } else {
+                statusDiv.textContent = 'このURLは既に追加されています。';
+                setTimeout(() => { statusDiv.textContent = '' }, 3000);
+            }
+        } else {
+            statusDiv.textContent = 'ココフォリアの部屋URLを入力してください。';
+            setTimeout(() => { statusDiv.textContent = '' }, 3000);
+        }
+    }
+
+    const initialResult = await chrome.storage.local.get(['roomUrls']);
+    displayUrls(initialResult.roomUrls);
+
+    addButton.addEventListener('click', addUrl);
+});

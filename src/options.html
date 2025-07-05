@@ -11,11 +11,15 @@
     </style>
 </head>
 <body>
-    <h3>監視するココフォリアの部屋URL</h3>
-    <input type="url" id="url-input" placeholder="https://ccfolia.com/rooms/XXXXX">
-    <button id="save-button">保存</button>
+    <h2>監視するココフォリアのURL一覧</h2>
+    <ul id="url-list"></ul>
+    <h3>部屋URL追加</h3>
+    <div class="input-area">
+        <input type="url" id="url-input" placeholder="https://ccfolia.com/rooms/XXXXX">
+        <button id="add-button">保存</button>
+    </div>
     <div id="status"></div>
     <script src="config.js"></script>
-    <script src="popup.js"></script>
+    <script src="options.js"></script>
 </body>
 </html>

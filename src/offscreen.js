@@ -1,34 +1,29 @@
 // offscreen.js
-
-//console.log('offscreen.jsが実行されました。');
-if (IS_DEBUG_MODE === true) {
-    console.log('offscreen.jsが実行されました。')
-}
-
-const iframe = document.getElementById('kokofolia-frame');
-
-// 1. 自分自身のURLからパラメータを読み取る
-const params = new URLSearchParams(window.location.search);
-const roomUrl = params.get('url');
-
-if (roomUrl) {
+document.addEventListener('DOMContentLoaded', () => {
+    //console.log('offscreen.jsが実行されました。');
     if (IS_DEBUG_MODE === true) {
-        console.log('Service Workerから受け取ったURL:', roomUrl);
+        console.log('offscreen.jsが実行されました。')
     }
-    iframe.src = roomUrl;
-} else {
-    if (IS_DEBUG_MODE === true) {
-        console.error('Service WorkerからURLが渡されませんでした。');
-    }
-}
 
-iframe.onload = () => {
-    console.log('Offscreen Document内のiframeの読み込みが完了しました。')
-}
+    
+    const iframeContainer = document.getElementById('iframe-container');
+    const params = new URLSearchParams(window.location.search);
+    const urlsJson = params.get('urls');
 
-// iframeの読み込みに失敗したときに実行される処理
-iframe.onerror = () => {
-    if (IS_DEBUG_MODE === true) {
-        console.error('iframeの読み込みに失敗しました。URLやネットワークを確認してください。');
+    if (urlsJson) {
+        const urls = JSON.parse(urlsJson);
+        
+        if (urls.length > 0 && iframeContainer) {
+            console.log(`${urls.length}件のルームを監視します。`);
+            console.log(urls);
+            for (url_input of urls) {
+                console.log("iframe要素を作成します");
+                const iframe = document.createElement('iframe');
+                iframe.src = url_input;
+                iframeContainer.appendChild(iframe);
+            }
+        }
+    } else {
+        console.log("監視対象のURLが設定されていません。");
     }
-};
+})
