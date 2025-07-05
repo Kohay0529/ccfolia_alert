@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "ココフォリア通知",
-    "version": "0.2",
+    "version": "1.0.0",
     "description": "ココフォリアルームのチャット更新をバックグラウンドで通知します。",
     "options_ui": {
         "page": "options.html",
