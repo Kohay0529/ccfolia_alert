@@ -16,8 +16,7 @@
     "permissions": [
         "offscreen",
         "notifications",
-        "storage",
-        "cookies"
+        "storage"
     ],
     "host_permissions": [
         "https://ccfolia.com/*"
